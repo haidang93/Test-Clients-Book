@@ -22,7 +22,11 @@ class Prefs {
   static final single = Prefs._();
 
   Future init() async {
+
+    // init shared preferences
     var pref = await _prefs;
+
+    // 
     push = pref.getBool('push') ?? true;
     if (pref.getString('locale') != null)
       locale = Locale(pref.getString('locale').split('-')[0],

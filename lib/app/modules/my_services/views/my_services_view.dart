@@ -3,14 +3,14 @@ import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
 
-import 'package:clientsbook/app/modules/support/controllers/support_controller.dart';
+import 'package:clientsbook/app/modules/my_services/controllers/my_services_controller.dart';
 
-class SupportView extends GetView<SupportController> {
+class MyServicesView extends GetView<MyServicesController> {
   @override
   Widget build(BuildContext context) {
     return MenuScaffold(
       title: Text(
-        'Support',
+        'My Services',
         style: TextStyle(fontSize: 20),
       ),
       body: ListView(

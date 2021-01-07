@@ -1,9 +1,3 @@
-import 'package:clientsbook/app/modules/login/forgot_password/bindings/forgot_password_binding.dart';
-import 'package:clientsbook/app/modules/login/forgot_password/views/forgot_password_view.dart';
-import 'package:clientsbook/app/modules/login/login/bindings/login_binding.dart';
-import 'package:clientsbook/app/modules/login/login/views/login_view.dart';
-import 'package:clientsbook/app/modules/login/sign_up/bindings/sign_up_binding.dart';
-import 'package:clientsbook/app/modules/login/sign_up/views/sign_up_view.dart';
 import 'package:get/get.dart';
 
 import 'package:clientsbook/app/modules/analysis/bindings/analysis_binding.dart';
@@ -14,6 +8,14 @@ import 'package:clientsbook/app/modules/clients/bindings/clients_binding.dart';
 import 'package:clientsbook/app/modules/clients/views/clients_view.dart';
 import 'package:clientsbook/app/modules/home/bindings/home_binding.dart';
 import 'package:clientsbook/app/modules/home/views/home_view.dart';
+import 'package:clientsbook/app/modules/login/forgot_password/bindings/forgot_password_binding.dart';
+import 'package:clientsbook/app/modules/login/forgot_password/views/forgot_password_view.dart';
+import 'package:clientsbook/app/modules/login/login/bindings/login_binding.dart';
+import 'package:clientsbook/app/modules/login/login/views/login_view.dart';
+import 'package:clientsbook/app/modules/login/sign_up/bindings/sign_up_binding.dart';
+import 'package:clientsbook/app/modules/login/sign_up/views/sign_up_view.dart';
+import 'package:clientsbook/app/modules/my_services/bindings/my_services_binding.dart';
+import 'package:clientsbook/app/modules/my_services/views/my_services_view.dart';
 import 'package:clientsbook/app/modules/setting/bindings/setting_binding.dart';
 import 'package:clientsbook/app/modules/setting/views/setting_view.dart';
 import 'package:clientsbook/app/modules/startup/bindings/startup_binding.dart';
@@ -76,6 +78,11 @@ class AppPages {
       name: _Paths.SIGN_UP,
       page: () => SignUpView(),
       binding: SignUpBinding(),
+    ),
+    GetPage(
+      name: _Paths.MY_SERVICES,
+      page: () => MyServicesView(),
+      binding: MyServicesBinding(),
     ),
   ];
 }

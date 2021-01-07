@@ -1,11 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import '../../../generated/locales.g.dart';
-import '../../routes/app_pages.dart';
-
-import '../const.dart';
-import 'slide_menu_page.dart';
 
 Widget styleTextField(String label, TextEditingController controller,
     {TextInputType keyboardType, Function onChange, String hint}) {

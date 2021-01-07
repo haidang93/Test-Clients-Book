@@ -1,78 +1,7 @@
-import 'package:clientsbook/app/common/const.dart';
-import 'package:clientsbook/app/routes/app_pages.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+part of menu_scaffold;
 
-class MainPagaLayout extends StatefulWidget {
-  MainPagaLayout({
-    Key key,
-    this.body,
-    this.title,
-  }) : super(key: key);
-  final Widget body;
-  final Widget title;
-  @override
-  _MainPagaLayoutState createState() => _MainPagaLayoutState();
-}
-
-class _MainPagaLayoutState extends State<MainPagaLayout> {
-  @override
-  Widget build(BuildContext context) {
-    return SlideMenuPage(
-      title: widget.title,
-      centerTitle: true,
-      color: Colors.indigo[800],
-      header: FlatButton(
-        onPressed: () {
-          Get.offNamed(Routes.SETTING);
-        },
-        child: Row(
-          children: [
-            Icon(
-              Icons.settings,
-              size: 28,
-              color: Colors.white,
-            ),
-            SizedBox(width: 10),
-            Text(
-              'Setting',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 20,
-              ),
-            ),
-          ],
-        ),
-      ),
-      footer: FlatButton(
-          onPressed: () {
-            Get.offNamedUntil(Routes.LOGIN, (route) => false);
-          },
-          child: Row(
-            children: [
-              Icon(
-                Icons.logout,
-                size: 28,
-                color: Colors.white,
-              ),
-              SizedBox(width: 10),
-              Text(
-                'Logout',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 20,
-                ),
-              ),
-            ],
-          )),
-      items: menuItems,
-      body: widget.body,
-    );
-  }
-}
-
-class SlideMenuPage extends StatefulWidget {
-  SlideMenuPage({
+class _SlideMenuPage extends StatefulWidget {
+  _SlideMenuPage({
     Key key,
     this.centerTitle = false,
     @required this.title,
@@ -85,7 +14,7 @@ class SlideMenuPage extends StatefulWidget {
   }) : super(key: key);
   final bool centerTitle;
   final Widget title;
-  final List<SlideMenuItem> items;
+  final List<MenuItem> items;
   final Widget header;
   final Widget footer;
   final Widget body;
@@ -96,13 +25,16 @@ class SlideMenuPage extends StatefulWidget {
   _SlideMenuPageState createState() => _SlideMenuPageState();
 }
 
-class _SlideMenuPageState extends State<SlideMenuPage>
+class _SlideMenuPageState extends State<_SlideMenuPage>
     with TickerProviderStateMixin {
   bool menu = false;
+  bool pageZoomer = false;
+  bool startAnimation = false;
   int animationDuration = 300;
   Animation<double> menuButtonAnimation;
   AnimationController menuButtonContoller;
-  Offset tapPosition;
+  Offset tapPosition = Offset(0, 0);
+  List<SlideMenuItem> items;
 
   @override
   Widget build(BuildContext context) {
@@ -133,31 +65,45 @@ class _SlideMenuPageState extends State<SlideMenuPage>
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Theme(
-                      data: ThemeData(
-                        textTheme: TextTheme(
-                          button: TextStyle(color: Colors.white),
+                    Container(
+                      width: MediaQuery.of(context).size.width * 0.5,
+                      alignment: Alignment.centerLeft,
+                      child: Container(
+                          width: double.infinity, child: widget.header),
+                    ),
+                    Expanded(
+                      child: Container(
+                        child: Center(
+                          child: ListView(
+                            shrinkWrap: true,
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisSize: MainAxisSize.min,
+                                children: items.map((item) {
+                                  // item.position = tapPosition;
+                                  return Container(
+                                    width:
+                                        MediaQuery.of(context).size.width * 0.5,
+                                    alignment: Alignment.centerLeft,
+                                    child: Container(
+                                      width: double.infinity,
+                                      child: item,
+                                    ),
+                                  );
+                                }).toList(),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                      child: widget.header,
                     ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: widget.items.map((item) {
-                        tapPosition = item.position;
-                        item.showMenu = menu;
-                        return Container(
-                          width: MediaQuery.of(context).size.width * 0.5,
-                          alignment: Alignment.centerLeft,
-                          child: Container(
-                            width: double.infinity,
-                            child: item,
-                          ),
-                        );
-                      }).toList(),
+                    Container(
+                      width: MediaQuery.of(context).size.width * 0.5,
+                      alignment: Alignment.centerLeft,
+                      child: Container(
+                          width: double.infinity, child: widget.footer),
                     ),
-                    widget.footer,
                   ],
                 ),
               ),
@@ -199,12 +145,7 @@ class _SlideMenuPageState extends State<SlideMenuPage>
                   bottom: 0,
                   duration: Duration(milliseconds: animationDuration),
                   child: GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        if (menu = true) menu = false;
-                        menuButtonContoller.reverse();
-                      });
-                    },
+                    onTap: hideMenu,
                     child: AnimatedContainer(
                       duration: Duration(milliseconds: animationDuration),
                       height: double.infinity,
@@ -236,7 +177,7 @@ class _SlideMenuPageState extends State<SlideMenuPage>
                                             icon: AnimatedIcons.menu_arrow,
                                             color: textColor,
                                             progress: menuButtonContoller),
-                                        onPressed: showMenuHandle,
+                                        onPressed: menuButtonHandle,
                                       ),
                                       if (!widget.centerTitle) widget.title,
                                       if (widget.acctions != null)
@@ -261,6 +202,27 @@ class _SlideMenuPageState extends State<SlideMenuPage>
               ],
             ),
           ),
+          AnimatedPositioned(
+            duration: Duration(milliseconds: startAnimation ? 300 : 0),
+            top: startAnimation ? 0 : tapPosition.dy,
+            left: startAnimation ? 0 : 20,
+            child: Visibility(
+              visible: pageZoomer,
+              child: AnimatedContainer(
+                duration: Duration(milliseconds: 300),
+                curve: Curves.easeInOutQuint,
+                height:
+                    startAnimation ? MediaQuery.of(context).size.height : 40,
+                width: startAnimation
+                    ? MediaQuery.of(context).size.width
+                    : MediaQuery.of(context).size.width * 0.5,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(startAnimation ? 0 : 100),
+                ),
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -273,9 +235,43 @@ class _SlideMenuPageState extends State<SlideMenuPage>
       duration: Duration(milliseconds: 500),
       vsync: this,
     );
+    items = widget.items
+        .map((e) => SlideMenuItem(
+              onLongPress: e.onLongPress,
+              onTap: e.onTap,
+              title: e.title,
+              icon: e.icon,
+              hideMenu: hideMenu,
+              position: tapPosition,
+              pageTransition: pageTransiton,
+              route: e.route,
+            ))
+        .toList();
   }
 
-  showMenuHandle() async {
+  Future pageTransiton(Offset passPosition) async {
+    tapPosition = passPosition;
+    setState(() {
+      pageZoomer = true;
+    });
+    Future.delayed(Duration(milliseconds: 100), () {
+      setState(() {
+        startAnimation = true;
+      });
+    });
+  }
+
+  Future hideMenu() async {
+    setState(() {
+      if (menu = true) menu = false;
+    });
+    menuButtonContoller.reverse();
+    items.forEach((element) async {
+      element.controller.reverse();
+    });
+  }
+
+  Future menuButtonHandle() async {
     setState(() {
       menu = !menu;
     });
@@ -283,131 +279,15 @@ class _SlideMenuPageState extends State<SlideMenuPage>
     if (menu) {
       menuButtonContoller.forward();
       await Future.delayed(Duration(milliseconds: 100), () {});
-      for (var item in widget.items) {
+      for (var item in items) {
         item.controller.forward();
         await Future.delayed(Duration(milliseconds: 50), () {});
       }
     } else {
       menuButtonContoller.reverse();
-      widget.items.forEach((element) {
+      items.forEach((element) {
         element.controller.reverse();
       });
     }
-    // setState(() {});
   }
 }
-
-// ignore: must_be_immutable
-class SlideMenuItem extends StatefulWidget {
-  SlideMenuItem(
-      {this.icon,
-      @required this.title,
-      @required this.onTap,
-      this.onLongPress,
-      Key key})
-      : super(key: key);
-  final Widget icon;
-  final String title;
-  final VoidCallback onTap;
-  final VoidCallback onLongPress;
-  bool showMenu;
-  AnimationController controller;
-  Offset position;
-
-  @override
-  _SlideMenuItemState createState() => _SlideMenuItemState();
-}
-
-class _SlideMenuItemState extends State<SlideMenuItem>
-    with SingleTickerProviderStateMixin {
-  Animation<Offset> animation;
-  Offset position;
-
-  @override
-  void initState() {
-    super.initState();
-    widget.controller =
-        AnimationController(duration: Duration(milliseconds: 150), vsync: this);
-    animation = Tween<Offset>(
-      begin: Offset(-1, 0),
-      end: Offset.zero,
-    ).animate(widget.controller);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return SlideTransition(
-      position: animation,
-      child: GestureDetector(
-        onTapDown: (detail) {
-          widget.position = detail.globalPosition;
-        },
-        child: FlatButton(
-          onPressed: () {
-            widget.onTap();
-            widget.showMenu = false;
-          },
-          onLongPress: widget.onLongPress,
-          child: Theme(
-            data: ThemeData(
-              iconTheme: IconThemeData(size: 28, color: Colors.white),
-            ),
-            child: Row(
-              children: [
-                widget.icon,
-                SizedBox(width: 10),
-                Text(
-                  widget.title,
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
-        ),
-      ),
-    );
-  }
-}
-
-List<SlideMenuItem> menuItems = [
-  new SlideMenuItem(
-    icon: Icon(Icons.home),
-    title: 'Home',
-    onTap: () {
-      Get.offNamed(Routes.HOME);
-    },
-  ),
-  new SlideMenuItem(
-    icon: Icon(Icons.home_repair_service),
-    title: 'Clients',
-    onTap: () {
-      Get.offNamed(Routes.CLIENTS);
-    },
-  ),
-  new SlideMenuItem(
-    icon: Icon(Icons.calendar_today),
-    title: 'Calendar',
-    onTap: () {
-      Get.offNamed(Routes.CALENDAR);
-    },
-  ),
-  new SlideMenuItem(
-    icon: Icon(Icons.analytics),
-    title: 'Analysis',
-    onTap: () {
-      Get.offNamed(Routes.ANALYSIS);
-    },
-  ),
-  new SlideMenuItem(
-    icon: Icon(Icons.contact_support),
-    title: 'Support',
-    onTap: () {
-      Get.offNamed(Routes.SUPPORT);
-    },
-  ),
-];
